@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>TOKYO SHOP - Red & Black Dark Store</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700;800&family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        tokyo: {
+                            bg: '#0a0a0c',
+                            card: '#141418',
+                            border: '#2a2a35',
+                            red: '#ff2a4b',
+                            redhover: '#e01b3c',
+                            redglow: 'rgba(255, 42, 75, 0.4)',
+                            darkred: '#8b0015',
+                            text: '#f1f1f5',
+                            muted: '#9a9aa8'
+                        }
+                    },
+                    fontFamily: {
+                        kanit: ['Kanit', 'sans-serif'],
+                        orbitron: ['Orbitron', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Kanit', sans-serif;
+            background-color: #0a0a0c;
+            color: #f1f1f5;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+        }
+        .font-logo { font-family: 'Orbitron', sans-serif; }
+        .glass-panel {
+            background: rgba(20, 20, 24, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+        ::-webkit-scrollbar { width: 4px; height: 4px; }
+        ::-webkit-scrollbar-track { background: #0a0a0c; }
+        ::-webkit-scrollbar-thumb { background: #ff2a4b; border-radius: 4px; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+<body class="bg-tokyo-bg text-tokyo-text min-h-screen flex flex-col justify-between selection:bg-tokyo-red selection:text-white pb-20 md:pb-0">
+
+    <!-- TOP HEADER -->
+    <header class="sticky top-0 z-40 glass-panel border-b border-tokyo-border/60">
+        <div class="max-w-md mx-auto px-4 h-16 flex items-center justify-between">
+            <div onclick="switchPage('store')" class="cursor-pointer flex items-center gap-2">
+                <div class="w-9 h-9 rounded-lg bg-gradient-to-tr from-tokyo-darkred to-tokyo-red flex items-center justify-center font-bold text-white text-xl font-logo border border-tokyo-red/50 shadow-lg shadow-tokyo-red/20">
+                    T
+                </div>
+                <div>
+                    <span class="font-logo font-black text-xl tracking-wider bg-clip-text text-transparent bg-gradient-to-r from-white via-red-200 to-tokyo-red">TOKYO</span>
+                    <span class="font-logo font-bold text-xs text-tokyo-red block -mt-1 tracking-widest">SHOP</span>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-3">
+                <button onclick="toggleAdminView()" id="adminToggleBtn" class="px-2.5 py-1.5 rounded-full bg-tokyo-card border border-tokyo-border text-xs font-medium text-tokyo-muted flex items-center gap-1.5 hover:text-white hover:border-tokyo-red transition-all">
+                    <i class="fa-solid fa-user-shield text-tokyo-red"></i>
+                    <span id="adminBtnText">หลังบ้าน</span>
+                </button>
+
+                <button onclick="openCartModal()" class="relative p-2 rounded-xl bg-tokyo-card border border-tokyo-border text-white hover:border-tokyo-red transition-all">
+                    <i class="fa-solid fa-bag-shopping text-lg text-tokyo-red"></i>
+                    <span id="cartBadge" class="absolute -top-1.5 -right-1.5 bg-tokyo-red text-white text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center border-2 border-tokyo-bg">
+                        0
+                    </span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN CONTAINER -->
+    <main class="max-w-md mx-auto w-full flex-1 px-4 py-4">
+
+        <!-- STORE FRONT -->
+        <div id="storeView" class="space-y-6">
+            <div class="relative w-full rounded-2xl overflow-hidden border border-tokyo-border/80 shadow-2xl bg-tokyo-card">
+                <div id="bannerContainer" class="relative h-44 w-full overflow-hidden"></div>
+                <div id="bannerDots" class="absolute bottom-3 left-0 right-0 flex justify-center gap-1.5 z-10"></div>
+            </div>
+
+            <div class="space-y-3">
+                <div class="relative">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-tokyo-muted"></i>
+                    <input type="text" id="searchInput" oninput="filterProducts()" placeholder="ค้นหาสินค้า เช่น ไอดีเกม, เสื้อสตรีท..." class="w-full bg-tokyo-card border border-tokyo-border rounded-xl pl-10 pr-4 py-2.5 text-sm focus:outline-none focus:border-tokyo-red text-white placeholder-tokyo-muted">
+                </div>
+                <div class="flex items-center gap-2 overflow-x-auto no-scrollbar py-1" id="categoryChips"></div>
+            </div>
+
+            <div>
+                <div class="flex items-center justify-between mb-3">
+                    <h3 class="font-bold text-lg text-white flex items-center gap-2">
+                        <span class="w-2 h-5 bg-tokyo-red rounded-full"></span>
+                        รายการสินค้า
+                    </h3>
+                    <span id="productCount" class="text-xs text-tokyo-muted">แสดง 0 รายการ</span>
+                </div>
+                <div id="productGrid" class="grid grid-cols-2 gap-3.5"></div>
+            </div>
+        </div>
+
+        <!-- ADMIN BACKEND -->
+        <div id="adminView" class="hidden space-y-5">
+            <div class="bg-gradient-to-r from-tokyo-card via-tokyo-card to-tokyo-darkred/30 p-4 rounded-2xl border border-tokyo-border flex justify-between items-center">
+                <div>
+                    <span class="text-xs font-bold text-tokyo-red uppercase tracking-wider">ระบบหลังบ้าน Admin</span>
+                    <h2 class="text-xl font-bold text-white font-logo">TOKYO CONTROL</h2>
+                </div>
+                <button onclick="switchPage('store')" class="px-3 py-1.5 bg-tokyo-red/20 text-tokyo-red border border-tokyo-red/50 rounded-lg text-xs font-medium">หน้าร้าน</button>
+            </div>
+
+            <div class="grid grid-cols-4 gap-1 p-1 bg-tokyo-card rounded-xl border border-tokyo-border text-xs font-medium">
+                <button onclick="switchAdminTab('stats')" id="tabBtn-stats" class="py-2.5 rounded-lg text-center bg-tokyo-red text-white font-bold">ภาพรวม</button>
+                <button onclick="switchAdminTab('products')" id="tabBtn-products" class="py-2.5 rounded-lg text-center text-tokyo-muted">สินค้า</button>
+                <button onclick="switchAdminTab('banners')" id="tabBtn-banners" class="py-2.5 rounded-lg text-center text-tokyo-muted">แบนเนอร์</button>
+                <button onclick="switchAdminTab('orders')" id="tabBtn-orders" class="py-2.5 rounded-lg text-center text-tokyo-muted">ออเดอร์</button>
+            </div>
+
+            <!-- ADMIN TAB 1 -->
+            <div id="adminTab-stats" class="space-y-4">
+                <div class="grid grid-cols-2 gap-3">
+                    <div class="bg-tokyo-card p-4 rounded-xl border border-tokyo-border">
+                        <div class="text-xs text-tokyo-muted">ยอดขายรวม</div>
+                        <div class="text-xl font-extrabold text-tokyo-red font-logo" id="statRevenue">฿0</div>
+                    </div>
+                    <div class="bg-tokyo-card p-4 rounded-xl border border-tokyo-border">
+                        <div class="text-xs text-tokyo-muted">คำสั่งซื้อ</div>
+                        <div class="text-xl font-extrabold text-white font-logo" id="statOrdersCount">0</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ADMIN TAB 2 -->
+            <div id="adminTab-products" class="hidden space-y-4">
+                <div class="flex justify-between items-center">
+                    <h3 class="font-bold text-sm text-white">จัดการสินค้า</h3>
+                    <button onclick="openAddProductModal()" class="px-3 py-1.5 bg-tokyo-red text-white rounded-lg text-xs font-bold">+ เพิ่มสินค้า</button>
+                </div>
+                <div id="adminProductList" class="space-y-2"></div>
+            </div>
+
+            <!-- ADMIN TAB 3 -->
+            <div id="adminTab-banners" class="hidden space-y-4">
+                <div class="flex justify-between items-center">
+                    <h3 class="font-bold text-sm text-white">จัดการแบนเนอร์</h3>
+                    <button onclick="openAddBannerModal()" class="px-3 py-1.5 bg-tokyo-red text-white rounded-lg text-xs font-bold">+ เพิ่มแบนเนอร์</button>
+                </div>
+                <div id="adminBannerList" class="space-y-3"></div>
+            </div>
+
+            <!-- ADMIN TAB 4 -->
+            <div id="adminTab-orders" class="hidden space-y-4">
+                <div class="flex justify-between items-center">
+                    <h3 class="font-bold text-sm text-white">รายการสั่งซื้อ</h3>
+                </div>
+                <div id="adminOrderList" class="space-y-3"></div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- BOTTOM MOBILE NAV -->
+    <nav id="bottomNav" class="fixed bottom-0 left-0 right-0 z-30 glass-panel border-t border-tokyo-border/80 max-w-md mx-auto">
+        <div class="flex justify-around items-center h-16">
+            <button onclick="switchPage('store')" class="flex flex-col items-center justify-center text-tokyo-red w-1/3">
+                <i class="fa-solid fa-house text-lg"></i>
+                <span class="text-[10px] mt-1 font-medium">หน้าแรก</span>
+            </button>
+            <button onclick="openCartModal()" class="flex flex-col items-center justify-center text-tokyo-muted w-1/3">
+                <i class="fa-solid fa-cart-shopping text-lg"></i>
+                <span class="text-[10px] mt-1 font-medium">ตะกร้า</span>
+            </button>
+            <button onclick="toggleAdminView()" class="flex flex-col items-center justify-center text-tokyo-muted w-1/3">
+                <i class="fa-solid fa-sliders text-lg"></i>
+                <span class="text-[10px] mt-1 font-medium">หลังบ้าน</span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- JAVASCRIPT APP LOGIC -->
+    <script>
+        let products = JSON.parse(localStorage.getItem('tokyo_products')) || [
+            { id: 1, name: 'ID Free Fire สายสตรีท ไอเทมครบ', price: 490, oldPrice: 890, category: 'Gaming', img: 'https://images.unsplash.com/photo-1542751371-adc38448a05e?w=500', desc: 'ไอดีเกมการันตีปลอดภัย เปลี่ยนรหัสได้ทันที มีชุดเซ็ตพรีเมียมครบ' },
+            { id: 2, name: 'Tokyo Neon Cyber Hoodie', price: 890, oldPrice: 1290, category: 'Fashion', img: 'https://images.unsplash.com/photo-1556905055-8f358a7a47b2?w=500', desc: 'เสื้อฮู้ดดี้ลายเรืองแสง Red & Black Cotton 100%' }
+        ];
+
+        let banners = JSON.parse(localStorage.getItem('tokyo_banners')) || [
+            { id: 1, title: 'TOKYO RED SALE 50%', img: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800' }
+        ];
+
+        let cart = [];
+        let orders = JSON.parse(localStorage.getItem('tokyo_orders')) || [];
+        let currentCategory = 'ทั้งหมด';
+
+        function renderProducts() {
+            const grid = document.getElementById('productGrid');
+            const filtered = products.filter(p => currentCategory === 'ทั้งหมด' || p.category === currentCategory);
+            grid.innerHTML = filtered.map(p => `
+                <div class="bg-tokyo-card border border-tokyo-border rounded-xl overflow-hidden flex flex-col justify-between p-3">
+                    <img src="${p.img}" class="w-full h-32 object-cover rounded-lg mb-2">
+                    <div class="font-bold text-sm text-white line-clamp-1">${p.name}</div>
+                    <div class="text-tokyo-red font-logo font-bold mt-1">฿${p.price}</div>
+                    <button onclick="addToCart(${p.id})" class="mt-2 w-full py-1.5 bg-tokyo-red text-white text-xs font-bold rounded-lg">เพิ่มลงตะกร้า</button>
+                </div>
+            `).join('');
+            document.getElementById('productCount').innerText = `แสดง ${filtered.length} รายการ`;
+        }
+
+        function renderBanners() {
+            const container = document.getElementById('bannerContainer');
+            if(banners.length > 0) {
+                container.innerHTML = `<img src="${banners[0].img}" class="w-full h-full object-cover">`;
+            }
+        }
+
+        function addToCart(id) {
+            const prod = products.find(p => p.id === id);
+            cart.push(prod);
+            document.getElementById('cartBadge').innerText = cart.length;
+            alert(`เพิ่ม "${prod.name}" ลงในตะกร้าเรียบร้อยแล้ว`);
+        }
+
+        function toggleAdminView() {
+            const storeView = document.getElementById('storeView');
+            const adminView = document.getElementById('adminView');
+            if(adminView.classList.contains('hidden')) {
+                storeView.classList.add('hidden');
+                adminView.classList.remove('hidden');
+                document.getElementById('adminBtnText').innerText = "หน้าร้าน";
+                renderAdminData();
+            } else {
+                adminView.classList.add('hidden');
+                storeView.classList.remove('hidden');
+                document.getElementById('adminBtnText').innerText = "หลังบ้าน";
+            }
+        }
+
+        function switchAdminTab(tab) {
+            ['stats', 'products', 'banners', 'orders'].forEach(t => {
+                document.getElementById(`adminTab-${t}`).classList.add('hidden');
+            });
+            document.getElementById(`adminTab-${tab}`).classList.remove('hidden');
+        }
+
+        function renderAdminData() {
+            document.getElementById('statRevenue').innerText = '฿' + orders.reduce((sum, o) => sum + o.total, 0);
+            document.getElementById('statOrdersCount').innerText = orders.length;
+
+            const adminProdList = document.getElementById('adminProductList');
+            adminProdList.innerHTML = products.map(p => `
+                <div class="p-3 bg-tokyo-card border border-tokyo-border rounded-lg flex justify-between items-center text-xs">
+                    <div>
+                        <div class="font-bold text-white">${p.name}</div>
+                        <div class="text-tokyo-red">฿${p.price}</div>
+                    </div>
+                    <button onclick="deleteProduct(${p.id})" class="text-red-500"><i class="fa-solid fa-trash"></i></button>
+                </div>
+            `).join('');
+        }
+
+        function deleteProduct(id) {
+            products = products.filter(p => p.id !== id);
+            localStorage.setItem('tokyo_products', JSON.stringify(products));
+            renderProducts();
+            renderAdminData();
+        }
+
+        function openAddProductModal() {
+            const name = prompt("ชื่อสินค้าใหม่:");
+            const price = parseFloat(prompt("ราคาสินค้า (บาท):"));
+            const img = prompt("ลิงก์รูปภาพสินค้า (URL):", "https://images.unsplash.com/photo-1542751371-adc38448a05e?w=500");
+            if(name && price) {
+                products.push({ id: Date.now(), name, price, oldPrice: price * 1.5, category: 'ทั่วไป', img, desc: 'สินค้าคุณภาพแท้ 100%' });
+                localStorage.setItem('tokyo_products', JSON.stringify(products));
+                renderProducts();
+                renderAdminData();
+            }
+        }
+
+        function openAddBannerModal() {
+            const img = prompt("ลิงก์รูปภาพแบนเนอร์ใหม่ (URL):");
+            if(img) {
+                banners.unshift({ id: Date.now(), title: 'โปรโมชั่นพิเศษ', img });
+                localStorage.setItem('tokyo_banners', JSON.stringify(banners));
+                renderBanners();
+            }
+        }
+
+        function openCartModal() {
+            if(cart.length === 0) {
+                alert("ยังไม่มีสินค้าในตะกร้า");
+                return;
+            }
+            const total = cart.reduce((sum, i) => sum + i.price, 0);
+            if(confirm(`สินค้าในตะกร้า ${cart.length} ชิ้น\nยอดรวมทั้งสิ้น ฿${total}\n\nคุณต้องการยืนยันการสั่งซื้อหรือไม่?`)) {
+                orders.push({ id: Date.now(), total, date: new Date().toLocaleDateString('th-TH') });
+                localStorage.setItem('tokyo_orders', JSON.stringify(orders));
+                cart = [];
+                document.getElementById('cartBadge').innerText = 0;
+                alert("ส่งคำสั่งซื้อเรียบร้อยแล้ว!");
+            }
+        }
+
+        function switchPage(page) {
+            if(page === 'store') {
+                document.getElementById('adminView').classList.add('hidden');
+                document.getElementById('storeView').classList.remove('hidden');
+                document.getElementById('adminBtnText').innerText = "หลังบ้าน";
+            }
+        }
+
+        // Init
+        renderProducts();
+        renderBanners();
+    </script>
+</body>
+</html>
